@@ -13,5 +13,4 @@
  <ul>
    <li>All Chat</li>
    <li>Private Chat</li>
-   <li>Group Chat</li>
  </ul>
