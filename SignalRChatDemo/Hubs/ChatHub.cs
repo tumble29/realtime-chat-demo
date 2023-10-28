@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using SignalRChatDemo.Models;
-using System.Collections.Concurrent;
-using System.Diagnostics;
 
 namespace SignalRChatDemo.Hubs;
 
 public class ChatHub : Hub
 {
+    //Map kết nối với user
     private readonly static ConnectionMapping<string> _connections = new();
 
     public async Task RequestInitializeUserList()
@@ -20,28 +18,12 @@ public class ChatHub : Hub
     {
         return Clients.All.SendAsync("ReceiveMessage", user, message);
     }
-    public async Task SendPrivateMessage(string userID, string message)
+    public async Task SendPrivateMessage(string UserName, string ReceiverID, string message)
     {
-        string? name = Context.User?.Identity?.Name;
+        //string? name = Context.User?.Identity?.Name;
 
-        if (string.IsNullOrEmpty(userID))
-        {
-            var users = _connections.GetUsers();
-            foreach(var user in users)
-            {
-                foreach(var connectionId in _connections.GetConnections(user)) 
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceiveMessage", name ?? "anonymous", message);
-                }
-            }
-        }
-        else
-        {
-            foreach (var connectionId in _connections.GetConnections(userID))
-            {
-                await Clients.Client(connectionId).SendAsync("ReceivePrivateMessage", name ?? "anonymous", message);
-            }
-        }
+        await Clients.Client(ReceiverID).SendAsync
+            ("ReceivePrivateMessage", UserName, Context.ConnectionId, ReceiverID, message);
     }
     public override async Task OnConnectedAsync()
     {
@@ -54,7 +36,6 @@ public class ChatHub : Hub
 
         await Task.CompletedTask;
     }
-
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {

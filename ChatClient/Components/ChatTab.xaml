@@ -10,7 +10,7 @@
 
     <StackPanel>
         <Button Content="{Binding Title, ElementName=root}" Click="Button_Click" Padding="10" Background="White" BorderBrush="Black" BorderThickness="2"></Button>
-        <ScrollViewer VerticalAlignment="Stretch" VerticalScrollBarVisibility="Visible">
+        <ScrollViewer VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <ListBox x:Name="contentList" Visibility="Collapsed" Margin="0" ItemsSource="{Binding ContentList, ElementName= root}" >
                 <ListBox.ItemContainerStyle >
                     <Style TargetType="ListBoxItem">

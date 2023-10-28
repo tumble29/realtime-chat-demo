@@ -4,27 +4,30 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:models="clr-namespace:ChatClient.Models"
-        xmlns:helpers="clr-namespace:ChatClient.Helpers"
         xmlns:local="clr-namespace:ChatClient" xmlns:components="clr-namespace:ChatClient.Components"
         mc:Ignorable="d" FontSize="18"
         Title="SignalR Chat Demo" Height="450" Width="800">
     <Window.Resources>
-        <DataTemplate x:Key="LeftAlignedMessageTemplate">
-            <TextBlock Text="{Binding Content}" HorizontalAlignment="Left"/>
+        <DataTemplate DataType="{x:Type models:ReceivedMessage}">
+            <Grid>
+                <Border Width="10" Height="10" Background="Red"/>
+                <!--<TextBlock Text="{Binding Content}" HorizontalAlignment="Left"/>-->
+            </Grid>
         </DataTemplate>
 
-        <DataTemplate x:Key="RightAlignedMessageTemplate">
-            <TextBlock Text="{Binding Content}" HorizontalAlignment="Right"/>
+        <DataTemplate DataType="{x:Type models:SentMessage}">
+            <Grid>
+                <Border Width="10" Height="10" Background="Yellow"/>
+                <!--<TextBlock Text="{Binding Content}" HorizontalAlignment="Right"/>-->
+            </Grid>
         </DataTemplate>
 
-        <DataTemplate x:Key="CenteredMessageTemplate">
-            <TextBlock Text="{Binding Content}" HorizontalAlignment="Center"/>
+        <DataTemplate DataType="{x:Type models:SystemMessage}">
+            <Grid>
+                <Border Width="10" Height="10" Background="Green"/>
+                <!--<TextBlock Text="{Binding Content}" HorizontalAlignment="Center"/>-->
+            </Grid>
         </DataTemplate>
-
-        <helpers:MessageTemplateSelector x:Key="MessageTemplateSelector"
-                                     LeftAlignedTemplate="{StaticResource LeftAlignedMessageTemplate}"
-                                     RightAlignedTemplate="{StaticResource RightAlignedMessageTemplate}"
-                                     CenteredTemplate="{StaticResource CenteredMessageTemplate}"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -32,11 +35,18 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10">
-            <Label Content="Username:"></Label>
-            <TextBox x:Name="userNameInput" MinWidth="200" Margin="0 0 10 0"></TextBox>
-            <Button x:Name="openConnection" HorizontalAlignment="Center" Click="openConnection_Click">Kết nối</Button>
-        </StackPanel>
+        <DockPanel Grid.Row="0">
+            <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                <Label Content="Client ID: "/>
+                <Label Content="{Binding ClientID}"/>
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10">
+                <Label Content="Username:"></Label>
+                <TextBox x:Name="userNameInput" MinWidth="200" Margin="0 0 10 0"></TextBox>
+                <Button x:Name="openConnection" HorizontalAlignment="Center" Click="openConnection_Click">Kết nối</Button>
+            </StackPanel>
+        </DockPanel>
+        
         <Separator Margin="0" Grid.Row="1" VerticalAlignment="Top" Height="3" Background="Black"/>
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
@@ -44,24 +54,39 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="4*"/>
             </Grid.ColumnDefinitions>
-            
-            <Grid Grid.Column="0">
+
+            <Grid Grid.Column="0" VerticalAlignment="Stretch">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <Button Background="White" BorderThickness="0" Padding="10">
+                <Button x:Name="AllChatButton" Background="LightBlue" BorderThickness="0" Padding="10" Click="AllChatButton_Click">
                     <Button.Content>All Chat</Button.Content>
                     <Button.Effect>
                         <DropShadowEffect BlurRadius="5" ShadowDepth="1"></DropShadowEffect>
                     </Button.Effect>
                 </Button>
+                <Button IsEnabled="False" Grid.Row="1" Content="Online Users" Padding="10" Background="White" BorderBrush="Black" BorderThickness="2"></Button>
+                <ScrollViewer Grid.Row="2" VerticalAlignment="Stretch" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                    <ListBox x:Name="contentList" Visibility="Visible" Margin="0" ItemsSource="{Binding UserList}" >
+                        <ListBox.ItemContainerStyle >
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding}" Click="PrivateChatButton_Click" Background="White" HorizontalContentAlignment="Left" HorizontalAlignment="Stretch"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </ScrollViewer>
+                <!--<ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Visible">
+                    <components:ChatTab Title="Online Users" ContentList="{Binding UserList}" VerticalAlignment="Stretch"/>
+                </ScrollViewer>-->
 
-                <StackPanel Grid.Row="1">
-                    <components:ChatTab Title="Online Users" ContentList="{Binding UserList}"/>
-                    <components:ChatTab Title="Online Groups" ContentList="{Binding GroupList}"/>
-                </StackPanel>
             </Grid>
             <Separator Grid.Column="1" VerticalAlignment="Stretch" Background="Black" BorderThickness="1" ></Separator>
             <Grid Grid.Column="2">
@@ -69,23 +94,40 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
-                <ScrollViewer HorizontalAlignment="Stretch" x:Name="messageScrollViewer" Grid.Row="0" Margin="2"
-                       MaxHeight="200"
+                <ScrollViewer x:Name="messageScrollViewer" Grid.Row="0"
                       VerticalScrollBarVisibility="Auto">
-                    <ListBox x:Name="messages" Padding="20 10" BorderThickness="0"
-                     ItemTemplateSelector="{StaticResource MessageTemplateSelector}">
+                    <ListBox x:Name="messages" Padding="20 10" BorderThickness="0" >
+                        <ListBox.Resources>
+                            <DataTemplate DataType="{x:Type models:ReceivedMessage}">
+                                <Border Background="LightBlue">
+                                    <TextBlock Text="{Binding Content}" TextAlignment="Left"/>
+                                </Border>
+                            </DataTemplate>
 
+                            <DataTemplate DataType="{x:Type models:SentMessage}">
+                                <Border Background="LightGreen">
+                                    <TextBlock Text="{Binding Content}" TextAlignment="Right"/>
+                                </Border>
+                            </DataTemplate>
+
+                            <DataTemplate DataType="{x:Type models:SystemMessage}">
+                                <Border Background="Red">
+                                    <TextBlock Text="{Binding Content}" TextAlignment="Center"/>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.Resources>
                     </ListBox>
                 </ScrollViewer>
-                <Grid Grid.Row="1" HorizontalAlignment="Stretch">
+                <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <TextBox Grid.Column="0" x:Name="messageInput" HorizontalAlignment="Stretch" Margin="20" VerticalAlignment="Center"/>
-                    <Button Grid.Column="1" x:Name="sendMessage" Padding="20 10" Margin="0 20 20 20" IsEnabled="False" Click="sendMessage_Click">
-                        Gửi tin nhắn
-                    </Button>
+                    <Button Grid.Column="1" x:Name="sendMessage" Padding="10"
+                            Margin="0,20,20,20" IsEnabled="False" Click="sendMessage_Click"
+                            HorizontalAlignment="Right"
+                            Content="Gửi tin nhắn"/>
                 </Grid>
             </Grid>
         </Grid>

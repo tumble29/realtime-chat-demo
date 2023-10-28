@@ -5,6 +5,6 @@ namespace ChatClient.Models
     internal class ReceivedMessage : MessageStyle
     {
         public string Content { get; set; }
-        public HorizontalAlignment Alignment { get; set; } = HorizontalAlignment.Left;
+        public override string ToString() => Content ?? string.Empty;
     }
 }

@@ -8,7 +8,8 @@ namespace ChatClient.Models
         Group,
         User,
     }
-    class MessageContent
+
+    abstract class MessageContent
     {
         public string Sender { get; set; }
         public string Content { get; set; }
@@ -34,6 +35,8 @@ namespace ChatClient.Models
             }
             this.Content= Content;
         }
+
+        public abstract override string ToString();
         public static MessageContent FromJson(string json)
         {
             MessageContent content = JsonSerializer.Deserialize<MessageContent>(json);

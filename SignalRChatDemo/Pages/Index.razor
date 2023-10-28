@@ -21,11 +21,36 @@
         Message: <input @bind="messageInput" />
     </label>
 </div>
-<button @onclick="Send" disabled="@(IsConnected == false)">Send</button>
 
+<div>
+    @if (userList != null)
+    {
+        <select id="user-list" @bind="selectedUser">
+            <option value=null>All.....</option>
+            @foreach (var user in userList)
+            {
+                @if (user != hubConnection?.ConnectionId)
+                {
+                    <option value="@user">@user</option>
+                }
+            }
+        </select>
+    }
+
+    <button @onclick="Send" disabled="@(IsConnected == false)">Send</button>
+</div>
 <hr />
 <ul>
+    <p><b>All Chat</b></p>
     @foreach (string message in messages)
+    {
+        <li>@message</li>
+    }
+</ul>
+<hr />
+<ul>
+    <p><b>Private Chat</b></p>
+    @foreach (string message in privateMessages)
     {
         <li>@message</li>
     }
@@ -34,7 +59,9 @@
 @code {
     private HubConnection? hubConnection;
     private List<string> messages = new();
+    private List<string> privateMessages = new();
     private List<string> userList = new();
+    private string? selectedUser;
     private string? userInput;
     private string? messageInput;
     private readonly static HashSet<string> connectedUsers = new();
@@ -61,9 +88,10 @@
             InvokeAsync(StateHasChanged);
         });
 
-        hubConnection.On<string>("ReceiveUsername", (username) =>
+        hubConnection.On<string, string, string, string>("ReceivePrivateMessage", (user, SenderID, ReceiverID, message) =>
         {
-
+            privateMessages.Add($"{user}: {message}");
+            InvokeAsync(StateHasChanged);
         });
 
         hubConnection.On<List<string>>("ReceiveInitializeUserList", (list) =>
@@ -80,7 +108,10 @@
     {
         if (hubConnection is not null)
         {
-            await hubConnection.SendAsync("SendMessage", userInput, messageInput);
+            if (selectedUser != null && selectedUser != "")
+                await hubConnection.SendAsync("SendPrivateMessage", userInput, selectedUser, messageInput);
+            else
+                await hubConnection.SendAsync("SendMessage", userInput, messageInput);
         }
     }
 
