@@ -41,6 +41,7 @@ public class ChatHub : Hub
     {
         string? name = Context.User?.Identity?.Name??Context.ConnectionId;
         _connections.Remove(name, Context.ConnectionId);
+        await Clients.All.SendAsync("ClientDisconnected", Context.ConnectionId);
         await Clients.All.SendAsync("Broadcast", $"{name} đã rời chat!");
         await Task.CompletedTask;
     }

@@ -42,7 +42,3 @@ C:\Users\ADMIN\OneDrive\Máy tính\Học\Học kì 5\SE310.O11 Công nghệ .NET
 C:\Users\ADMIN\OneDrive\Máy tính\Học\Học kì 5\SE310.O11 Công nghệ .NET\seminar demo\SignalRChatDemo\ChatClient\obj\Release\net6.0-windows\ChatClient.pdb
 C:\Users\ADMIN\OneDrive\Máy tính\Học\Học kì 5\SE310.O11 Công nghệ .NET\seminar demo\SignalRChatDemo\ChatClient\obj\Release\net6.0-windows\ChatClient.genruntimeconfig.cache
 C:\Users\ADMIN\OneDrive\Máy tính\Học\Học kì 5\SE310.O11 Công nghệ .NET\seminar demo\SignalRChatDemo\ChatClient\obj\Release\net6.0-windows\ref\ChatClient.dll
-C:\Users\ADMIN\OneDrive\Máy tính\Học\Học kì 5\SE310.O11 Công nghệ .NET\seminar demo\SignalRChatDemo\ChatClient\bin\Release\net6.0-windows\ChatClient.dll.manifest
-C:\Users\ADMIN\OneDrive\Máy tính\Học\Học kì 5\SE310.O11 Công nghệ .NET\seminar demo\SignalRChatDemo\ChatClient\bin\Release\net6.0-windows\ChatClient.application
-C:\Users\ADMIN\OneDrive\Máy tính\Học\Học kì 5\SE310.O11 Công nghệ .NET\seminar demo\SignalRChatDemo\ChatClient\obj\Release\net6.0-windows\ChatClient.dll.manifest
-C:\Users\ADMIN\OneDrive\Máy tính\Học\Học kì 5\SE310.O11 Công nghệ .NET\seminar demo\SignalRChatDemo\ChatClient\obj\Release\net6.0-windows\ChatClient.application

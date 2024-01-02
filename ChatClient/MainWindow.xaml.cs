@@ -5,12 +5,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Reflection;
-using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Markup;
 using System.Windows.Media;
 
 namespace ChatClient;
@@ -52,7 +49,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         messages.ItemsSource = AllChat;
         connection = new HubConnectionBuilder()
             .WithAutomaticReconnect()
-            .WithUrl("https://signalr-chat-demo.azurewebsites.net/chatHub")
+            .WithUrl("https://localhost:7055/chatHub")
+            //.WithUrl("https://signalr-chat-demo.azurewebsites.net/chatHub")
             .Build();
 
         //Attempt to reconnect when lost connection to server
@@ -112,7 +110,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 AllChat.Add(newMessage);
             });
         });
-        connection.On<string, string, string, string>("ReceivePrivateMessage", (user, SenderID, ReceiverID, message) =>
+        connection.On<string, string, string, string>
+            ("ReceivePrivateMessage", (user, SenderID, ReceiverID, message) =>
                 {
                     ObservableCollection<MessageStyle>? ChatLog;
                     if (SenderID == _ClientID)
@@ -142,7 +141,6 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 AllChat.Add(new SystemMessage { Content = message });
             });
         });
-
         connection.On<List<string>>("ReceiveInitializeUserList", (list) =>
         {
             Application.Current.Dispatcher.Invoke(() =>
@@ -153,6 +151,11 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                     if (user != _ClientID)
                         UserList.Add(user);
                 }
+            });
+        });
+        connection.On<string>("ClientDisconnected", (ClientID) => {
+            this.Dispatcher.Invoke(() => {
+                UserList.Remove(ClientID);
             });
         });
 
